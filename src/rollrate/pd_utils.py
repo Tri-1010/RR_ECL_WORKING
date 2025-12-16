@@ -9,7 +9,7 @@ Chuẩn bị dataset cho mô hình PD:
 
 import pandas as pd
 from src.config import CFG, BUCKETS_CANON
-from ead_utils import get_latest_snapshot
+from src.rollrate.ead_utils import get_latest_snapshot
 
 
 # ============================================================

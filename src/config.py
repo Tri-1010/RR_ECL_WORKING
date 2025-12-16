@@ -25,15 +25,47 @@ BUCKETS_30P = ["DPD30+", "DPD60+", "DPD90+"]
 BUCKETS_60P = ["DPD60+", "DPD90+", "WRITEOFF"]
 BUCKETS_90P = ["DPD90+", "WRITEOFF"]
 # === COLUMNS CONFIG ===
+# ead_pd: dùng để build ma trận/PD; ead_ecl: dùng cho ECL (có thể khác nếu tính theo dòng tiền)
 CFG = dict(
     loan="AGREEMENT_ID",
     mob="MOB",
     state="STATE_MODEL",
     orig_date="DISBURSAL_DATE",
-    ead="PRINCIPLE_OUTSTANDING",
+    ead="PRINCIPLE_OUTSTANDING",      # giữ để tương thích (PD weight)
+    ead_pd="PRINCIPLE_OUTSTANDING",   # rõ tên cho PD
+    ead_ecl="PRINCIPLE_OUTSTANDING",  # placeholder; sẽ thay bằng EAD dòng tiền
     disb="DISBURSAL_AMOUNT",
     cutoff="CUTOFF_DATE",
 )
+
+# Alias cột phổ biến → chuẩn hóa về cấu hình trên
+COLUMN_ALIASES = {
+    "AGREEMENTID": "AGREEMENT_ID",
+    "CONTRACT_ID": "AGREEMENT_ID",
+    "STATE": "STATE_MODEL",
+}
+
+# Danh sách cột bắt buộc cho các pipeline lõi
+REQUIRED_COLS = [
+    CFG["loan"],
+    CFG["mob"],
+    CFG["state"],
+    CFG["cutoff"],
+    CFG["ead_pd"],
+]
+
+# Cấu hình EAD cho builder dòng tiền/ECL
+EAD_CFG = {
+    "ead_pd": CFG["ead_pd"],
+    "ead_ecl": CFG["ead_ecl"],
+    "rate": "EIR",
+    "emi": "EMI",
+    "term_rem": "TERM_REMAINING",
+    "limit": "LIMIT",
+    "undrawn": "UNDRAWN",
+    "schedule_instal_adj": "INSTLNUM_ADJ",
+    "schedule_amt_sum": "INSTLAMT_SUM",
+}
 
 # === SEGMENTATION CONFIG ===
 SEGMENT_COLS = ["RISK_SCORE", "PRODUCT_TYPE"]
