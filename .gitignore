@@ -1,0 +1,32 @@
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# Jupyter artifacts
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Environments
+.env
+*.env
+.venv/
+venv/
+
+# Large data artifacts (kept local)
+data/
+outputs/
+*.parquet
+*.pkl
+*.csv
+*.xlsx
+*.xlsb
+*.xls
+*.rar
+*.zip
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Tooling history
+.Rhistory
