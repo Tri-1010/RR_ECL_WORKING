@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pandas as pd
 from pathlib import Path
 from src.config import CFG, OUT_ROOT, MIN_OBS  # dùng SEGMENT_MAP ở dưới nếu bạn có

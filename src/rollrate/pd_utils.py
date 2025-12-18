@@ -8,7 +8,7 @@ Chuẩn bị dataset cho mô hình PD:
 """
 
 import pandas as pd
-from src.config import CFG, BUCKETS_CANON
+from src.config import CFG, BUCKETS_CANON, DEFAULT_EVENT_STATES
 from src.rollrate.ead_utils import get_latest_snapshot
 
 
@@ -40,7 +40,7 @@ def prepare_pd_input(df: pd.DataFrame) -> pd.DataFrame:
     state_col = CFG["state"]
 
     # IFRS9 default bucket
-    def_mask = snap[state_col].isin(["WRITEOFF", "DPD90+", "DPD120+", "DPD180+"])
+    def_mask = snap[state_col].isin(DEFAULT_EVENT_STATES)
     snap["PD_FLAG"] = def_mask.astype(int)
 
     return snap

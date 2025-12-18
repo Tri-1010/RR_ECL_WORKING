@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from typing import Dict
+from src.config import BUCKETS_30P
 
 # ------------------------------
 # Cấu hình anchor
@@ -241,8 +242,7 @@ def apply_k_to_lifecycle(df_lifecycle, k_dict,
                          blend_n=2):
     df = df_lifecycle.copy()
 
-    risk_cols = ["DPD30+", "DPD60+", "DPD90+", 
-                 "DPD120+", "DPD180+", "WRITEOFF"]
+    risk_cols = list(BUCKETS_30P)
 
     for product, k in k_dict.items():
         m_apply = m_apply_map.get(product, default_m_apply)
@@ -269,8 +269,7 @@ def apply_k_to_sale_plan(df_plan_fc, k_dict,
                          blend_n=2):
     df = df_plan_fc.copy()
 
-    risk_cols = ["DPD30+", "DPD60+", "DPD90+", 
-                 "DPD120+", "DPD180+", "WRITEOFF"]
+    risk_cols = list(BUCKETS_30P)
 
     for product, k in k_dict.items():
         m_apply = m_apply_map.get(product, default_m_apply)

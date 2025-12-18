@@ -6,12 +6,12 @@ import numpy as np
 import pandas as pd
 from typing import Dict, Tuple
 
-from src.config import CFG, BUCKETS_CANON, ABSORBING_BASE
+from src.config import CFG, BUCKETS_CANON, ABSORBING_BASE, DEFAULT_EVENT_STATES
 from src.rollrate.transition import STATE_SPACE
 from src.rollrate.pd_forward import compute_forward_pd_one_record
 
 DEFAULT_STATE = "DPD90+"
-DEFAULT_STATES_FOR_DATE = [DEFAULT_STATE]
+DEFAULT_STATES_FOR_DATE = list(DEFAULT_EVENT_STATES)
 PERFORMING_STATES = [
     s for s in STATE_SPACE
     if (s not in DEFAULT_STATES_FOR_DATE) and (s not in ABSORBING_BASE)

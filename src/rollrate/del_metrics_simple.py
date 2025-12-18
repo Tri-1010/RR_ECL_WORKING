@@ -1,13 +1,6 @@
 import pandas as pd
 
-BUCKETS_CANON = [
-    "DPD0", "DPD1+", "DPD30+", "DPD60+", "DPD90+", "DPD120+", "DPD180+",
-    "PREPAY", "WRITEOFF", "SOLDOUT"
-]
-
-BUCKETS_30P = ["DPD30+", "DPD60+", "DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
-BUCKETS_60P = ["DPD60+", "DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
-BUCKETS_90P = ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
+from src.config import BUCKETS_CANON, BUCKETS_30P, BUCKETS_60P, BUCKETS_90P
 
 def add_del_metrics_simple(df_lifecycle: pd.DataFrame) -> pd.DataFrame:
     """

@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import pandas as pd
 from typing import Dict
 
-from src.config import CFG, BUCKETS_CANON
+from src.config import CFG, BUCKETS_CANON, BUCKETS_30P, BUCKETS_60P, BUCKETS_90P
 
 # Forecast engine đã amount-based
 from src.rollrate.forecast import forecast_all_vintages
@@ -11,10 +13,7 @@ from src.rollrate.forecast import forecast_all_vintages
 # 0️⃣ Bucket groups
 # ============================================================
 
-BUCKETS_30P = ["DPD30+", "DPD60+", "DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
-BUCKETS_60P = ["DPD60+", "DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
-BUCKETS_90P = ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
-
+# (bucket group definitions are driven by RR_STATE_SCHEMA in src/config.py)
 
 # ============================================================
 # 1️⃣ ACTUAL LIFECYCLE — AMOUNT-BASED (EAD)

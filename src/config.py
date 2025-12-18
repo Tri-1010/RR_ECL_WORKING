@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 
 
 # ===== Resolve project root from this file path (stable across notebooks/scripts) =====
@@ -21,9 +22,6 @@ EXCEL_SHEET  = "Data"
 # ===========================
 MIN_OBS = 100         # Số quan sát tối thiểu
 MIN_EAD = 1e3         # Tổng dư nợ tối thiểu để build transition
-BUCKETS_30P = ["DPD30+", "DPD60+", "DPD90+"]
-BUCKETS_60P = ["DPD60+", "DPD90+", "WRITEOFF"]
-BUCKETS_90P = ["DPD90+", "WRITEOFF"]
 # === COLUMNS CONFIG ===
 # ead_pd: dùng để build ma trận/PD; ead_ecl: dùng cho ECL (có thể khác nếu tính theo dòng tiền)
 CFG = dict(
@@ -79,16 +77,75 @@ SEGMENT_MAP = {
 # === SMOOTHING CONFIG ===
 ALPHA_SMOOTH = 0.5
 
-# === STATE DEFINITIONS ===
-BUCKETS_CANON = [
-    "DPD0", "DPD1+", "DPD30+", "DPD60+", "DPD90+",
-    "PREPAY", "WRITEOFF", "SOLDOUT"
-]
+# ============================================================
+# STATE SPACE (schema switch)
+# ============================================================
+#
+# Default behaviour today: DPD90+ is default.
+# If later you want to keep separate buckets (DPD120+/DPD180+), switch STATE_SCHEMA.
+#
+# Options:
+#   - "DPD90"  : state-space stops at DPD90+
+#   - "DPD180" : state-space includes DPD120+ and DPD180+
+#
+# You can override via env var `RR_STATE_SCHEMA`.
+STATE_SCHEMA = os.getenv("RR_STATE_SCHEMA", "DPD90").upper().strip()
 
+STATE_SCHEMAS = {
+    "DPD90": {
+        "buckets": [
+            "DPD0", "DPD1+", "DPD30+", "DPD60+", "DPD90+",
+            "PREPAY", "WRITEOFF", "SOLDOUT",
+        ],
+        # IFRS9 default event for Stage 1 (12M): >=90dpd + writeoff
+        "default_event": ["DPD90+", "WRITEOFF"],
+        # Markov absorbing states (PD-style)
+        "absorbing": ["DPD90+", "WRITEOFF", "PREPAY", "SOLDOUT"],
+        # Delinquency aggregates (amount-based)
+        "del_30p": ["DPD30+", "DPD60+", "DPD90+", "WRITEOFF"],
+        "del_60p": ["DPD60+", "DPD90+", "WRITEOFF"],
+        "del_90p": ["DPD90+", "WRITEOFF"],
+    },
+    "DPD180": {
+        "buckets": [
+            "DPD0", "DPD1+", "DPD30+", "DPD60+", "DPD90+",
+            "DPD120+", "DPD180+",
+            "PREPAY", "WRITEOFF", "SOLDOUT",
+        ],
+        # IFRS9 default event for Stage 1 (12M): >=90dpd + writeoff
+        "default_event": ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF"],
+        # Markov absorbing states (PD-style)
+        "absorbing": ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF", "PREPAY", "SOLDOUT"],
+        # Delinquency aggregates (amount-based)
+        "del_30p": ["DPD30+", "DPD60+", "DPD90+", "DPD120+", "DPD180+", "WRITEOFF"],
+        "del_60p": ["DPD60+", "DPD90+", "DPD120+", "DPD180+", "WRITEOFF"],
+        "del_90p": ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF"],
+    },
+}
+
+if STATE_SCHEMA not in STATE_SCHEMAS:
+    raise ValueError(
+        f"Invalid RR_STATE_SCHEMA='{STATE_SCHEMA}'. "
+        f"Choose one of: {sorted(STATE_SCHEMAS.keys())}"
+    )
+
+_SCHEMA = STATE_SCHEMAS[STATE_SCHEMA]
+
+# === STATE DEFINITIONS (derived) ===
+BUCKETS_CANON = list(_SCHEMA["buckets"])
+DEFAULT_EVENT_STATES = list(_SCHEMA["default_event"])
+
+# Backward-compatible name (used widely in existing modules)
 #ABSORBING_BASE = ["WRITEOFF", "PREPAY", "SOLDOUT"]
-ABSORBING_BASE = ["DPD90+", "WRITEOFF", "PREPAY", "SOLDOUT"] # PD model
+ABSORBING_BASE = list(_SCHEMA["absorbing"])
 
-DEFAULT = {"DPD90+"}
+# Delinquency aggregates (used in lifecycle / reporting)
+BUCKETS_30P = list(_SCHEMA["del_30p"])
+BUCKETS_60P = list(_SCHEMA["del_60p"])
+BUCKETS_90P = list(_SCHEMA["del_90p"])
+
+# Convenience set
+DEFAULT = set(DEFAULT_EVENT_STATES)
 
 # === MODEL CONFIG ===
 #WEIGHT_METHOD = "exp"

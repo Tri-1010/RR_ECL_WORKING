@@ -16,7 +16,7 @@ ORA_HOST    = os.getenv("ORA_HOST", "prd-datamart-01.mafc.vn")
 ORA_PORT    = int(os.getenv("ORA_PORT", "1521"))
 ORA_SERVICE = os.getenv("ORA_SERVICE", "datamart")
 ORA_USER    = os.getenv("ORA_USER", "RISK")
-ORA_PASS    = os.getenv("ORA_PASS", "CongDuc$0luong")
+ORA_PASS    = os.getenv("ORA_PASS")
 
 def _connect():
     if cx_Oracle is None:

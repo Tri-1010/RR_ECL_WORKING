@@ -1,7 +1,6 @@
 from __future__ import annotations
 import pandas as pd
 from pathlib import Path
-from src.db import load_df
 from src.config import (
     DATA_SOURCE,
     PARQUET_DIR,
@@ -49,6 +48,7 @@ def load_data(sql_or_file: str = None,
         print("[INFO] Loading data from Oracle...")
         if sql_or_file is None:
             raise ValueError("Can chi dinh ten SQL file hoac cau SQL khi dang Oracle.")
+        from src.db import load_df
         df = load_df(sql_or_file, params=params)
 
     # ------------------- Parquet -------------------

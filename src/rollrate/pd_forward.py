@@ -1,15 +1,17 @@
 # ============================================================
 #  pd_forward.py – Forward PD từ Markov matrices (bản đã sửa)
 # ============================================================
+from __future__ import annotations
+
 import numpy as np
 import pandas as pd
 from typing import Dict, Tuple
 
-from src.config import CFG, BUCKETS_CANON, ABSORBING_BASE
+from src.config import CFG, BUCKETS_CANON, ABSORBING_BASE, DEFAULT_EVENT_STATES
 from src.rollrate.transition import STATE_SPACE
 
 # Trạng thái coi là default trong Markov (IFRS9 thường là DPD90+)
-DEFAULT_STATE = ["DPD90+", "WRITEOFF"]
+DEFAULT_STATE = list(DEFAULT_EVENT_STATES)
 
 
 
@@ -207,7 +209,7 @@ def compute_forward_pd_one_record(
     """
 
     # --- Danh sách default states IFRS dùng cho check T0 ---
-    IFRS_DEFAULT_STATES = ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
+    # IFRS9 default states are driven by DEFAULT_EVENT_STATES in src/config.py
 
     # --- Full state list (đảm bảo thứ tự chuẩn) ---
     states = _get_state_list()
@@ -229,7 +231,7 @@ def compute_forward_pd_one_record(
     # ============================================================
 
     # Tập state coi là default tại T0: IFRS + default Markov
-    default_states_at_t0 = set(IFRS_DEFAULT_STATES) | set(default_states_markov)
+    default_states_at_t0 = set(DEFAULT_EVENT_STATES) | set(default_states_markov)
 
     if current_state in default_states_at_t0:
         # Đã default rồi → PD_12M = 1

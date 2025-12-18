@@ -2,18 +2,25 @@ from __future__ import annotations
 from pathlib import Path
 import os
 import pandas as pd
-import oracledb
+try:
+    import oracledb  # type: ignore
+except Exception as exc:  # pragma: no cover (env-specific)
+    oracledb = None  # type: ignore
+    _ORACLE_IMPORT_ERROR = exc
+else:
+    _ORACLE_IMPORT_ERROR = None
 
-# TỐI ƯU MẶC ĐỊNH CHO oracledb
-# ----------------------------------------------------------------
-# Tăng số dòng fetch mỗi lần (mặc định ~100)
-oracledb.defaults.fetch_array_size = 50000
-oracledb.defaults.prefetch_rows = 50000
+if oracledb is not None:
+    # TỐI ƯU MẶC ĐỊNH CHO oracledb
+    # ----------------------------------------------------------------
+    # Tăng số dòng fetch mỗi lần (mặc định ~100)
+    oracledb.defaults.fetch_array_size = 50000
+    oracledb.defaults.prefetch_rows = 50000
 
-# Nếu mạng hoặc DB chậm → tăng lên 100k
-# oracledb.defaults.fetch_array_size = 100000
-# oracledb.defaults.prefetch_rows = 100000
-# ----------------------------------------------------------------
+    # Nếu mạng hoặc DB chậm → tăng lên 100k
+    # oracledb.defaults.fetch_array_size = 100000
+    # oracledb.defaults.prefetch_rows = 100000
+    # ----------------------------------------------------------------
 
 
 # === Oracle config (only needed if using DB) ===
@@ -21,7 +28,7 @@ ORA_HOST    = os.getenv("ORA_HOST", "prd-datamart-01.mafc.vn")
 ORA_PORT    = int(os.getenv("ORA_PORT", "1521"))
 ORA_SERVICE = os.getenv("ORA_SERVICE", "datamart")
 ORA_USER    = os.getenv("ORA_USER", "RISK")
-ORA_PASS    = os.getenv("ORA_PASS", "CongDuc$0luong")
+ORA_PASS    = os.getenv("ORA_PASS")
 
 
 def _connect():
@@ -29,6 +36,15 @@ def _connect():
     Tạo kết nối Oracle đã tối ưu.
     Chạy ở chế độ Thin (nhanh, không cần Instant Client).
     """
+    if oracledb is None:
+        raise ImportError(
+            "oracledb is not available in this Python environment. "
+            "Install/repair oracledb (and SSL dependencies) or use DATA_SOURCE='parquet'."
+        ) from _ORACLE_IMPORT_ERROR
+
+    if not ORA_PASS:
+        raise RuntimeError("Missing ORA_PASS environment variable for Oracle connection.")
+
     dsn = oracledb.makedsn(ORA_HOST, ORA_PORT, service_name=ORA_SERVICE)
 
     conn = oracledb.connect(

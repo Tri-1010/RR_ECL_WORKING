@@ -8,8 +8,6 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Tuple
 
-import matplotlib.pyplot as plt
-
 from src.config import CFG, BUCKETS_CANON
 
 
@@ -423,6 +421,8 @@ def plot_curve(
     """
     Vẽ curve theo MOB cho 1 hoặc nhiều cột (EAD hoặc tỷ lệ).
     """
+    import matplotlib.pyplot as plt
+
     plt.figure(figsize=(10, 5))
     for col in columns:
         if col not in forecast_df.columns:

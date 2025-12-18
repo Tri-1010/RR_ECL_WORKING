@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import time
 
-from src.config import CFG
+from src.config import CFG, DEFAULT_EVENT_STATES
 from src.rollrate.pd_forward import compute_forward_pd_one_record
 from src.rollrate.ead_profile import normalize_loan_column
 
@@ -128,8 +128,8 @@ def compute_ecl_final(
     mob_col   = CFG["mob"]
     ead_col   = CFG["ead"]
 
-    # IFRS9 default states
-    default_states = ["DPD90+", "DPD120+", "DPD180+", "WRITEOFF"]
+    # IFRS9 default states (driven by RR_STATE_SCHEMA in src/config.py)
+    default_states = list(DEFAULT_EVENT_STATES)
 
     # -------- Step 1: Build schedule_map --------
     schedule_map = _build_schedule_map(df_sched)
